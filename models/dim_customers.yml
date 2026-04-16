@@ -1,0 +1,28 @@
+version: 2 
+
+snapshots: 
+  - name: dim_customers
+    description: "SCD snapshot of customers from raw_customers"
+    config:
+      meta: 
+        owner: "CRM data team"
+        owner_email: "crm@email.com"
+        domain: "customers"
+    columns: 
+      - name: dbt_scd_id
+        description: "unique id for each customer"
+        tests: 
+          - not_null
+          - unique
+      - name: customer_id 
+        description: "business key for the customer"
+        tests: 
+          - not_null
+      - name: customer_name 
+        description: "full name of the customer"
+        tests: 
+          - not_null
+      - name: city 
+        description: "customer's city"
+        tests: 
+          - not_null

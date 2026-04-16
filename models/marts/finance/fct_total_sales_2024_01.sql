@@ -1,0 +1,1 @@
+{{ dynamic_total_sales (source_relation = ref('stg_orders'), amount_column = 'order_amount', where_clause = "order_date between '2024-01-01' and '2024-01-31'") }}

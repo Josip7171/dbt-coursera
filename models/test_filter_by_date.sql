@@ -1,0 +1,1 @@
+{{ filter_by_date('orders', 'order_date', '2024-01-01') }}

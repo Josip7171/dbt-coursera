@@ -30,14 +30,7 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Debug profile config
-        run: |
-          echo "---- dbt_project.yml profile ----"
-          grep "^profile:" dbt_project.yml || true
-          echo "---- .github/profiles/profiles.yml ----"
-          sed 's/password:.*/password: "***"/' .github/profiles/profiles.yml
-
+        
       - name: Run dbt build
         run: |
           dbt --version

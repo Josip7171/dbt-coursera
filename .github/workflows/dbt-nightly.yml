@@ -1,0 +1,49 @@
+name: dbt Nightly
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  nightly-build:
+    runs-on: ubuntu-latest
+
+    env:
+      DBT_PROFILES_DIR: .github/profiles
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run dbt compile
+        run: |
+          dbt --version
+          dbt compile
+
+      - name: Create run_results.json
+        run: |
+          mkdir -p target
+          echo '{ "metadata": { "job": "nightly", "mode": "compile-only" } }' > target/run_results.json
+
+      - name: Upload dbt nightly artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-nightly-artifacts
+          path: target

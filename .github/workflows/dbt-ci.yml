@@ -22,23 +22,32 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Create dbt profile
+        shell: bash
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          your_profile_name:
+          cat <<EOF > ~/.dbt/profiles.yml
+          rls_dm_ete:
             target: dev
             outputs:
               dev:
                 type: snowflake
-                account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-                user: ${{ secrets.SNOWFLAKE_USER }}
-                password: ${{ secrets.SNOWFLAKE_PASSWORD }}
-                role: ${{ secrets.SNOWFLAKE_ROLE }}
-                database: ${{ secrets.SNOWFLAKE_DATABASE }}
-                warehouse: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-                schema: ${{ secrets.SNOWFLAKE_SCHEMA }}
+                account: "${{ secrets.SNOWFLAKE_ACCOUNT }}"
+                user: "${{ secrets.SNOWFLAKE_USER }}"
+                password: "${{ secrets.SNOWFLAKE_PASSWORD }}"
+                role: "${{ secrets.SNOWFLAKE_ROLE }}"
+                database: "${{ secrets.SNOWFLAKE_DATABASE }}"
+                warehouse: "${{ secrets.SNOWFLAKE_WAREHOUSE }}"
+                schema: "${{ secrets.SNOWFLAKE_SCHEMA }}"
                 threads: 4
           EOF
+
+      - name: Debug profile file
+        shell: bash
+        run: |
+          echo "---- dbt_project profile ----"
+          grep "^profile:" dbt_project.yml
+          echo "---- ~/.dbt/profiles.yml ----"
+          sed 's/password: .*/password: "***"/' ~/.dbt/profiles.yml
 
       - name: Run dbt build
         run: |

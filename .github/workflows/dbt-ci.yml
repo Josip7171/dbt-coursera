@@ -9,6 +9,16 @@ jobs:
   dbt-build:
     runs-on: ubuntu-latest
 
+    env:
+      DBT_PROFILES_DIR: .github/profiles
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -21,33 +31,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Create dbt profile
-        shell: bash
+      - name: Debug profile config
         run: |
-          mkdir -p ~/.dbt
-          cat <<EOF > ~/.dbt/profiles.yml
-          rls_dm_ete:
-            target: dev
-            outputs:
-              dev:
-                type: snowflake
-                account: "${{ secrets.SNOWFLAKE_ACCOUNT }}"
-                user: "${{ secrets.SNOWFLAKE_USER }}"
-                password: "${{ secrets.SNOWFLAKE_PASSWORD }}"
-                role: "${{ secrets.SNOWFLAKE_ROLE }}"
-                database: "${{ secrets.SNOWFLAKE_DATABASE }}"
-                warehouse: "${{ secrets.SNOWFLAKE_WAREHOUSE }}"
-                schema: "${{ secrets.SNOWFLAKE_SCHEMA }}"
-                threads: 4
-          EOF
-
-      - name: Debug profile file
-        shell: bash
-        run: |
-          echo "---- dbt_project profile ----"
-          grep "^profile:" dbt_project.yml
-          echo "---- ~/.dbt/profiles.yml ----"
-          sed 's/password: .*/password: "***"/' ~/.dbt/profiles.yml
+          echo "---- dbt_project.yml profile ----"
+          grep "^profile:" dbt_project.yml || true
+          echo "---- .github/profiles/profiles.yml ----"
+          sed 's/password:.*/password: "***"/' .github/profiles/profiles.yml
 
       - name: Run dbt build
         run: |

@@ -41,7 +41,6 @@ jobs:
       - name: Run dbt build
         run: |
           dbt --version
-          dbt debug
           dbt build
 
       - name: Upload dbt artifacts
